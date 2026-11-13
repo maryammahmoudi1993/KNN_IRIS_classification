@@ -85,7 +85,7 @@ Two honest readings: cross-validation prefers `k=3`, yet `k=3` gets one test flo
 
 | | |
 |---|---|
-| **Then (August 2022)** | The first version is a 40-line script in [`legacy/IRIS.py`](legacy/IRIS.py). It reads the UCI Iris file with `pandas`, splits it 90/10 without a random seed, trains `KNeighborsClassifier(n_neighbors=1)` and prints one accuracy from a test set of 15 flowers. Re-running it gave 86.67%, 93.33% and 100% in three runs. |
+| **Then (August 2022)** | The first version is a 42-line script in [`legacy/IRIS.py`](legacy/IRIS.py). It reads the UCI Iris file with `pandas`, splits it 90/10 without a random seed, trains `KNeighborsClassifier(n_neighbors=1)` and prints one accuracy from a test set of 15 flowers. Re-running it gave 86.67%, 93.33% and 100% in three runs. |
 | **Now** | The same idea is rebuilt as a lesson: a fixed seed, a stratified split, repeated cross-validation to choose `k`, honest reporting of the spread, and notebooks that explain each step. |
 | **Still to do** | Compare with other models and explain individual predictions (notebooks 03 and 04). |
 
