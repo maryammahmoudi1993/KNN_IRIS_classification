@@ -16,8 +16,8 @@
 - How distance and feature scales interact (and a trap that breaks KNN).
 - How to choose `k` with repeated 5-fold cross-validation, and how to read the result.
 - Why a test set of 30 flowers cannot separate two similar models.
-
-Coming next in this repository: a comparison with other models (notebook 03) and an explanation of KNN's decisions with SHAP and LIME (notebook 04).
+- How to compare several classifiers fairly, and why "no clear winner" is a valid result.
+- How to explain a KNN prediction with its neighbours, permutation importance, SHAP and LIME, and what to do when explanations disagree.
 
 ## The pipeline in one picture
 
@@ -39,15 +39,17 @@ flowchart LR
 |---|---|
 | [01 · The problem and the KNN idea](notebooks/01_the_problem_and_the_knn_idea.ipynb) | What is KNN, what does the data look like, and why can one accuracy number mislead? |
 | [02 · Distance, k and cross-validation](notebooks/02_distance_k_and_cross_validation.ipynb) | Which `k`? Does scale matter? How do we measure fairly? |
-| 03 · Model comparison (coming) | Is KNN the right model? |
-| 04 · Explaining KNN with SHAP and LIME (coming) | Why did it choose that species? |
+| [03 · Is KNN the right model?](notebooks/03_is_knn_the_right_model.ipynb) | How do six classifiers compare on the same split and quizzes? |
+| [04 · Explaining KNN with SHAP and LIME](notebooks/04_explaining_knn_with_shap_and_lime.ipynb) | Why did it choose that species, and do the explanations agree? |
 
 ## How to run
 
-**On Google Colab** (the badges work once this branch is merged into `main`):
+**On Google Colab** (notebooks 03 and 04 need `pip install shap lime` in Colab; see `requirements.txt` for the tested versions):
 
 [![01 in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maryammahmoudi1993/KNN_IRIS_classification/blob/main/notebooks/01_the_problem_and_the_knn_idea.ipynb)
 [![02 in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maryammahmoudi1993/KNN_IRIS_classification/blob/main/notebooks/02_distance_k_and_cross_validation.ipynb)
+[![03 in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maryammahmoudi1993/KNN_IRIS_classification/blob/main/notebooks/03_is_knn_the_right_model.ipynb)
+[![04 in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maryammahmoudi1993/KNN_IRIS_classification/blob/main/notebooks/04_explaining_knn_with_shap_and_lime.ipynb)
 
 **On your computer** (tested with Python 3.13):
 
@@ -73,6 +75,34 @@ All numbers come from `notebooks/02_distance_k_and_cross_validation.ipynb` (seed
 
 Two honest readings: cross-validation prefers `k=3`, yet `k=3` gets one test flower fewer right. One flower is 3.3 points, so the 30-flower test set cannot tell the two apart. And in notebook 01, the *same* `k=1` model scored anywhere from 80% to 100% across 30 random splits of 15 test flowers, which is why my first script's single number was not reliable.
 
+### Comparing models (notebook 03)
+
+Same split, same 50 quizzes for every model (scikit-learn defaults; KNN uses the `k=3` from above). Seed 42.
+
+| Model | CV accuracy (training set) | Test flowers correct |
+|---|---|---|
+| Majority class (baseline) | 0.333 +/- 0.000 | 10 / 30 |
+| KNN (k=3) | 0.955 +/- 0.041 | 28 / 30 |
+| Logistic regression | 0.960 +/- 0.032 | 28 / 30 |
+| Decision tree | 0.943 +/- 0.043 | 28 / 30 |
+| SVM (RBF) | 0.964 +/- 0.035 | 29 / 30 |
+| Random forest | 0.951 +/- 0.037 | 27 / 30 |
+| Gaussian naive Bayes | 0.953 +/- 0.032 | 29 / 30 |
+
+All real models are within about two percentage points of each other, much less than the spread, so **no model clearly wins on Iris**. KNN's `k` was tuned by cross-validation and the others were not, which gives KNN a very small head start.
+
+![Six classifiers compared by cross-validation accuracy, dots with bars](assets/03_cv_comparison.png)
+
+*Mean cross-validation accuracy (dot) and spread of one quiz (bar). Notice how much the bars overlap.*
+
+### Explaining the model (notebook 04)
+
+Permutation importance and mean absolute SHAP value rank the measurements the same way: petal width, petal length, then the sepal ones far behind. For the one flower studied in detail (a *virginica* named *versicolor*), the neighbours show that the nearest one was correct but was outvoted 2 to 1, while SHAP and LIME disagree on the sign of the petal width's effect.
+
+![Permutation importance and SHAP importance side by side](assets/04_global_importance.png)
+
+*Two different methods, same ranking of the four measurements.*
+
 ![Cross-validation accuracy for k from 1 to 30, with the chosen k=3 marked](assets/02_choosing_k.png)
 
 *Mean cross-validation accuracy for each `k`. Notice the flat region of good values for small `k` and the drop for large `k`.*
@@ -87,7 +117,7 @@ Two honest readings: cross-validation prefers `k=3`, yet `k=3` gets one test flo
 |---|---|
 | **Then (August 2022)** | The first version is a 42-line script in [`legacy/IRIS.py`](legacy/IRIS.py). It reads the UCI Iris file with `pandas`, splits it 90/10 without a random seed, trains `KNeighborsClassifier(n_neighbors=1)` and prints one accuracy from a test set of 15 flowers. Re-running it gave 86.67%, 93.33% and 100% in three runs. |
 | **Now** | The same idea is rebuilt as a lesson: a fixed seed, a stratified split, repeated cross-validation to choose `k`, honest reporting of the spread, and notebooks that explain each step. |
-| **Still to do** | Compare with other models and explain individual predictions (notebooks 03 and 04). |
+| **Also added** | A comparison with other models (notebook 03) and explanations of KNN's decisions with neighbours, SHAP and LIME (notebook 04). |
 
 ## Limitations
 
