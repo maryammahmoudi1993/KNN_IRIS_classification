@@ -63,3 +63,20 @@ def plot_decision_regions(ax, model, df, x, y, title=""):
     ax.pcolormesh(xx, yy, codes, cmap=ListedColormap(COLORS), alpha=0.18, shading="auto")
     scatter_species(ax, df, x, y)
     ax.set_title(title)
+
+
+def make_model(k=3, metric="euclidean", scale=True):
+    """KNN, optionally with standardisation inside a pipeline (as built step by step in notebook 02)."""
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    knn = KNeighborsClassifier(n_neighbors=k, metric=metric)
+    return make_pipeline(StandardScaler(), knn) if scale else knn
+
+
+def repeated_cv(seed=SEED):
+    """The cross-validation used in notebooks 02 and 03: 5 folds, repeated 10 times."""
+    from sklearn.model_selection import RepeatedStratifiedKFold
+
+    return RepeatedStratifiedKFold(n_splits=5, n_repeats=10, random_state=seed)

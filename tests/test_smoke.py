@@ -28,3 +28,13 @@ def test_knn_trains_and_predicts():
     model = KNeighborsClassifier(n_neighbors=5).fit(x_train, y_train)
     accuracy = model.score(x_test, y_test)
     assert accuracy > 0.8
+
+
+def test_helpers_for_later_notebooks():
+    from src.iris_knn import make_model, repeated_cv
+
+    df = load_iris_frame()
+    x_train, x_test, y_train, y_test = split_data(df)
+    model = make_model(k=3).fit(x_train, y_train)
+    assert model.score(x_test, y_test) > 0.8
+    assert repeated_cv().get_n_splits() == 50
